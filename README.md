@@ -63,3 +63,4 @@ The duration of a musical note, in increments of 1/64th of a second.
 - 曲を鳴らすやつを書こう(5/14 一応実装)
 - 掃除しながら移動させたい（5/13 一応実装）
 - コードにも解説
+- 接続を簡単に定義するconnectRoomba()がうまく動かないので修正する
