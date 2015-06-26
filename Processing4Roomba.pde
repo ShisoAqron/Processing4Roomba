@@ -7,21 +7,32 @@ void setup() {
   size(400, 300);
   println(Serial.list());
   
+  port1 = new Serial(this, Serial.list()[0], 115200);
+  
   //connectRoomba(roomba1,port1,1,115200);
   
-
-  port1 = new Serial(this, Serial.list()[1], 115200);
   roomba1 = new Roomba(port1);
 }
 
 
 void draw() {
+  roomba1.status();
 }
-
 
 void mousePressed() {
 }
 
+/*
+void dispose(){
+  println("exit");
+}
+*/
+
+void exit(){
+  println("じゃあの");
+  roomba1.quit();
+  super.exit();
+}
 
 void keyPressed() {
   roomba1.command(key,keyCode);

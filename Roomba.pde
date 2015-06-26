@@ -4,12 +4,24 @@ class Roomba {
   byte[] motorB = new byte[2];
   byte[] songB = new byte[35];
   byte[] songN = new byte[2];
+  
+  int order = 1;
+  int returnByte = 1;
+  byte[] query = new byte[2+order];
+  byte[] stop = new byte[2];
 
   Roomba(Serial portPre) {
     driveB[0] = byte(137);
     motorB[0] = byte(138);
     songB[0] = byte(140);
     songN[0] = byte(141);
+    
+    query[0] = byte(148);
+    query[1] = byte(1);
+    
+    stop[0] = byte(150);
+    stop[1] = byte(0);
+    
     port = portPre;
   }
 
@@ -66,6 +78,19 @@ class Roomba {
       songN[1]=byte(0);
 
       port.write(songN);
+    }else if(key == 'h'){
+      fullmode();
+      query[2] = byte(7);
+      port.write(query);
+      println("push h");
+    }else if(key == 'k'){
+      fullmode();
+      println("push k");
+      port.write(stop);
+    }
+    
+    if(key =='q'){
+      exit();
     }
   }
 
@@ -102,6 +127,20 @@ class Roomba {
 
     songB[number*2+1]=byte(pitchnum);
     songB[number*2+2]=byte(len);
+  }
+  
+  void status(){
+    println("hoge");
+    for(int i=0;i<3+order+returnByte;i++){
+      println("senserReturn:"+port.read());
+    }
+  }
+  
+  void quit(){
+    port.write(stop);
+    delay(30);
+    port.write(byte(135));
+    delay(30);
   }
 }
 
