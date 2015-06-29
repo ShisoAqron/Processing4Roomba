@@ -8,7 +8,11 @@ class Roomba {
   int order = 1;
   int returnByte = 1;
   byte[] query = new byte[2+order];
+  int [] data = new int[3+order+returnByte];
   byte[] stop = new byte[2];
+  
+  String mode = "STANBY";
+  boolean keyPress = false;
 
   Roomba(Serial portPre) {
     driveB[0] = byte(137);
@@ -26,9 +30,15 @@ class Roomba {
   }
 
   void command(char key, int keyCode) {
+    if(keyPress){
+      return;
+    }
+    keyPress = true;
+        
     if (keyCode == ENTER) {
       println("clean!");
       port.write(byte(135));
+      mode="CLEAN";
       println("start");
     } else if (key == 'p') {
       port.write(byte(133));
@@ -37,26 +47,15 @@ class Roomba {
     } else if (key == 'd') {
       port.write(byte(143));
       println("seek dock");
-    } else if (keyCode == LEFT) {
-      fullmode();
-      drive(1, 1, 0, 1);
-    } else if (keyCode == RIGHT) {
-      fullmode();
-      drive(1, 1, 255, 254);
-    } else if (keyCode == UP) {
-      fullmode();
-      drive(80, 0, 0, 0);
-    } else if (keyCode == DOWN) {
-      fullmode();
-      drive(175, 0, 0, 0);
-    } else if (key == ' ') {
-      fullmode();
-      drive(255, 255, 128, 0);
     } else if (key == 'm') {
       fullmode();
+      query[2] = byte(7);
+      port.write(query);
+      
       motorB[1] = byte(7);
 
       port.write(motorB);
+      mode ="DRIVE";
     } else if (key == 's') {
       fullmode();
       //songNum
@@ -93,7 +92,32 @@ class Roomba {
       exit();
     }
   }
-
+  
+  void move(int keyCode){
+    if(mode!="DRIVE"){
+      return;
+    }
+    
+    keyPress = true;
+    
+    if (keyCode == LEFT) {
+      drive(1, 1, 0, 1);
+    } else if (keyCode == RIGHT) {
+      drive(1, 1, 255, 254);
+    } else if (keyCode == UP) {
+      drive(80, 0, 0, 0);
+    } else if (keyCode == DOWN) {
+      drive(175, 0, 0, 0);
+    }
+  }
+  
+  void Dstop(){
+    if(mode!="DRIVE"){
+      return;
+    }
+    println("stop");
+    drive(255, 255, 255, 255);
+  }
 
   void fullmode() {
     port.write(byte(128));
@@ -130,9 +154,34 @@ class Roomba {
   }
   
   void status(){
-    println("hoge");
-    for(int i=0;i<3+order+returnByte;i++){
-      println("senserReturn:"+port.read());
+    int parity = 19;
+    if(port.read()==19){
+      data[0]=19;
+      for(int i=1;i<3+order+returnByte;i++){
+        //println("senserReturn:"+port.read());
+        data[i] = port.read();
+        parity += data[i];
+      }
+    }else{
+      for(int i=0;i<3+order+returnByte;i++){
+        //println("senserReturn:"+port.read());
+        data[i] = -1;
+      }
+    }
+    if(parity!=256){
+      return;
+    }
+    if(data[0]==19){
+      println("dataList");
+      println(data);
+    }
+  }
+  
+  boolean hit(){
+    if(roomba1.data[3]==1 ||roomba1.data[3]==2|| roomba1.data[3]==3){
+      return true;
+    }else{
+      return false;
     }
   }
   

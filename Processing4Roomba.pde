@@ -17,16 +17,15 @@ void setup() {
 
 void draw() {
   roomba1.status();
+  if(roomba1.hit()){
+    background(255,0,0);
+  }else{
+    background(255);
+  }
 }
 
 void mousePressed() {
 }
-
-/*
-void dispose(){
-  println("exit");
-}
-*/
 
 void exit(){
   println("じゃあの");
@@ -36,6 +35,12 @@ void exit(){
 
 void keyPressed() {
   roomba1.command(key,keyCode);
+  roomba1.move(keyCode);
+}
+
+void keyReleased(){
+  roomba1.keyPress=false;
+  roomba1.Dstop();
 }
 
 void connectRoomba(Roomba roomba, Serial port,int comport, int connectionSpeed){
